@@ -54,6 +54,11 @@ pub struct StreamingPeekableIterState<T> {
 }
 
 impl<T> StreamingPeekableIterState<T> {
+    /// Return the underlying reader, bypassing any buffered packet line.
+    pub fn inner_mut(&mut self) -> &mut T {
+        &mut self.read
+    }
+
     /// Return a new instance from `read` which will stop decoding packet lines when receiving one of the given `delimiters`.
     /// If `trace` is `true`, all packetlines received or sent will be passed to the facilities of the `gix-trace` crate.
     #[cfg(any(feature = "blocking-io", feature = "async-io"))]

@@ -285,7 +285,8 @@ fn http_authentication_error_can_be_differentiated_and_identity_is_transmitted()
         password: "password".into(),
         oauth_refresh_token: None,
     })?;
-    client.handshake(Service::UploadPack, &[])?;
+    let SetServiceResponse { refs, .. } = client.handshake(Service::UploadPack, &[])?;
+    io::copy(&mut refs.expect("refs in protocol V1"), &mut io::sink())?;
 
     assert_eq!(
         server
@@ -556,7 +557,8 @@ fn redirected_post_does_not_forward_basic_auth_to_the_new_host() -> TestResult {
         oauth_refresh_token: None,
     })?;
 
-    client.handshake(Service::UploadPack, &[]).map(drop)?;
+    let SetServiceResponse { refs, .. } = client.handshake(Service::UploadPack, &[])?;
+    io::copy(&mut refs.expect("refs in protocol V1"), &mut io::sink())?;
     let url_after_handshake = client.to_url().as_ref().to_owned();
     let mut request = client.request(client::WriteMode::Binary, client::MessageKind::Flush, false)?;
     request.write_all(b"0000")?;
